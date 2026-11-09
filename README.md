@@ -153,6 +153,8 @@ consequence of the widget receiving no data.
 - New fields read from NUT: `battery.voltage`, `input.frequency`, `input.voltage`,
   `input.current.nominal` and `ups.temperature` (in addition to the existing
   `output.voltage`, `ups.load` and `battery.charge`).
+- The widget title uses `ups.model` and falls back to `device.model` when the UPS
+  does not report `ups.model` (the TS Shara 4452 only reports `device.model`).
 
 **Widget UI (`FullRepresentation.qml`, `main.qml`)**
 
