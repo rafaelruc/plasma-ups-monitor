@@ -18,10 +18,14 @@ The widget is built for Plasma Desktop and reads standard NUT fields instead of 
 ## Features
 
 - battery percentage
-- estimated runtime
-- load percentage
-- real power in watts when reported by NUT
-- output voltage
+- battery voltage (`battery.voltage`)
+- input voltage (`input.voltage`) and output voltage (`output.voltage`)
+- input frequency (`input.frequency`)
+- nominal input current (`input.current.nominal`)
+- UPS temperature (`ups.temperature`)
+- load percentage (`ups.load`)
+- runtime (`battery.runtime`), shown exactly as reported by NUT, with no formatting
+- real power in watts when reported by NUT (card is hidden when the UPS does not report it)
 - raw UPS alarm text
 - last detected power-loss timestamp
 - configurable refresh interval
@@ -137,19 +141,26 @@ That is invalid JSON, so the widget discarded the whole output. The QML warnings
 `Unable to assign [undefined] to bool / QString` seen in `plasmawindowed` are a
 consequence of the widget receiving no data.
 
-### Change in this fork
+### Changes in this fork
 
-`package/contents/scripts/nut-status.sh` now discards `battery.runtime` unless it
-is numeric. One line was added right after the runtime is read:
+**Helper script (`package/contents/scripts/nut-status.sh`)**
 
-```bash
-runtime="$(get_value 'battery.runtime')"
-case "$runtime" in ""|*[!0-9.]*) runtime="" ;; esac
-```
+- `battery.runtime` is no longer emitted as a JSON number. It is now emitted as a
+  string (`runtimeRaw`) containing exactly what NUT reports (for example `d  22`),
+  so the widget can never break on a non-numeric value.
+- All numeric fields now go through a validated `json_number_or_null`: anything
+  that is not a number becomes `null` instead of producing invalid JSON.
+- New fields read from NUT: `battery.voltage`, `input.frequency`, `input.voltage`,
+  `input.current.nominal` and `ups.temperature` (in addition to the existing
+  `output.voltage`, `ups.load` and `battery.charge`).
 
-When the value is not numeric, the runtime is emitted as `null` (shown as `N/A`)
-instead of breaking the entire output. Battery percentage, load and output voltage
-work normally.
+**Widget UI (`FullRepresentation.qml`, `main.qml`)**
+
+- The metric cards are now: Input voltage, Output voltage, Input frequency,
+  Input current (nominal), Battery voltage, Temperature, Load, Runtime and
+  (only when the UPS reports it) Power.
+- The Runtime card displays the raw `battery.runtime` value, with no unit or
+  conversion. If the UPS reports nothing, it shows `N/A`.
 
 ### Fedora notes
 
@@ -171,9 +182,8 @@ work normally.
 
   `upsc -l` only lists names known to `upsd`; it works even when no data is arriving.
 
-- This UPS does not report a usable runtime, so the widget shows `N/A` for it.
-  Its `input.voltage` reading may also be inaccurate. These are driver/firmware
-  limitations, not widget bugs.
+- This UPS reports a non-numeric `battery.runtime` (`d  22`), so the Runtime card
+  shows that raw text. This is a driver/firmware limitation, not a widget bug.
 
 - Alternative that does not touch the widget: set a fixed value in `ups.conf`
   with `override.battery.runtime = 600`. This displays a made-up runtime, so it is
@@ -194,7 +204,7 @@ MIT licensed. Only the helper script fix and this documentation were changed.
 
 - `package/metadata.json`: Plasma package metadata
 - `package/contents/ui/`: QML UI
-- `package/contents/scripts/nut-status.sh`: helper that reads NUT and emits JSON (patched in this fork to ignore non-numeric `battery.runtime`)
+- `package/contents/scripts/nut-status.sh`: helper that reads NUT and emits JSON (patched in this fork: raw runtime string and extra fields)
 - `CMakeLists.txt`: optional install support for Plasma packaging workflows
 
 ## License

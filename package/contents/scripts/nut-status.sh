@@ -13,7 +13,7 @@ json_escape() {
 
 json_number_or_null() {
     case "${1-}" in
-        "")
+        ""|*[!0-9.-]*)
             printf 'null'
             ;;
         *)
@@ -55,7 +55,11 @@ charge="$(get_value 'battery.charge')"
 watts="$(get_value 'ups.realpower')"
 voltage="$(get_value 'output.voltage')"
 runtime="$(get_value 'battery.runtime')"
-case "$runtime" in ""|*[!0-9.]*) runtime="" ;; esac
+battery_voltage="$(get_value 'battery.voltage')"
+input_frequency="$(get_value 'input.frequency')"
+input_voltage="$(get_value 'input.voltage')"
+input_current_nominal="$(get_value 'input.current.nominal')"
+temperature="$(get_value 'ups.temperature')"
 load="$(get_value 'ups.load')"
 alarm="$(get_value 'ups.alarm')"
 last_onbatt=""
@@ -108,8 +112,21 @@ printf ','
 printf '"outputVoltage":'
 json_number_or_null "$voltage"
 printf ','
-printf '"runtimeSeconds":'
-json_number_or_null "$runtime"
+printf '"runtimeRaw":"%s",' "$(json_escape "$runtime")"
+printf '"batteryVoltage":'
+json_number_or_null "$battery_voltage"
+printf ','
+printf '"inputFrequency":'
+json_number_or_null "$input_frequency"
+printf ','
+printf '"inputVoltage":'
+json_number_or_null "$input_voltage"
+printf ','
+printf '"inputCurrentNominal":'
+json_number_or_null "$input_current_nominal"
+printf ','
+printf '"temperature":'
+json_number_or_null "$temperature"
 printf ','
 printf '"loadPercent":'
 json_number_or_null "$load"

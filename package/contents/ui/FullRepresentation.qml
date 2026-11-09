@@ -31,6 +31,19 @@ Item {
     readonly property color batteryLabelColor: root.info.onBattery ? batteryValueColor : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.75)
     readonly property color batteryOutlineColor: clampedBatteryPercent <= 35 ? Qt.rgba(0, 0, 0, 0.32) : Qt.rgba(1, 1, 1, 0.18)
 
+    readonly property bool hasPower: root.info.powerWatts !== null && root.info.powerWatts !== undefined && root.info.powerWatts !== ""
+    readonly property var metrics: [
+        { label: i18n("Input voltage"),   value: root.inputVoltageText,        visible: true },
+        { label: i18n("Output voltage"),  value: root.voltageText,             visible: true },
+        { label: i18n("Input frequency"), value: root.inputFrequencyText,      visible: true },
+        { label: i18n("Input current (nominal)"), value: root.inputCurrentNominalText, visible: true },
+        { label: i18n("Battery voltage"), value: root.batteryVoltageText,      visible: true },
+        { label: i18n("Temperature"),     value: root.temperatureText,         visible: true },
+        { label: i18n("Load"),            value: root.loadText,                visible: true },
+        { label: i18n("Runtime"),         value: root.runtimeTextValue,        visible: true },
+        { label: i18n("Power"),           value: root.powerText,               visible: hasPower }
+    ]
+
     Component {
         id: batteryCardComponent
 
@@ -189,94 +202,36 @@ Item {
             columnSpacing: fullRoot.compactHeightMode ? Kirigami.Units.smallSpacing : Kirigami.Units.largeSpacing
             rowSpacing: fullRoot.compactHeightMode ? Kirigami.Units.smallSpacing : Kirigami.Units.largeSpacing
 
-            QQC2.Frame {
-                Layout.fillWidth: true
-                Layout.minimumWidth: fullRoot.metricColumns === 4 ? Kirigami.Units.gridUnit * 5 : Kirigami.Units.gridUnit * 7
+            Repeater {
+                model: fullRoot.metrics
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 2
+                QQC2.Frame {
+                    id: metricFrame
 
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: i18n("Power")
-                        opacity: 0.7
-                    }
+                    required property var modelData
 
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: root.powerText
-                        font.bold: true
-                        horizontalAlignment: Text.AlignRight
-                    }
-                }
-            }
+                    visible: metricFrame.modelData.visible
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: fullRoot.metricColumns === 4 ? Kirigami.Units.gridUnit * 5 : Kirigami.Units.gridUnit * 7
 
-            QQC2.Frame {
-                Layout.fillWidth: true
-                Layout.minimumWidth: fullRoot.metricColumns === 4 ? Kirigami.Units.gridUnit * 5 : Kirigami.Units.gridUnit * 7
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 2
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 2
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: metricFrame.modelData.label
+                            opacity: 0.7
+                            elide: Text.ElideRight
+                        }
 
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: i18n("Voltage")
-                        opacity: 0.7
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: root.voltageText
-                        font.bold: true
-                        horizontalAlignment: Text.AlignRight
-                    }
-                }
-            }
-
-            QQC2.Frame {
-                Layout.fillWidth: true
-                Layout.minimumWidth: fullRoot.metricColumns === 4 ? Kirigami.Units.gridUnit * 5 : Kirigami.Units.gridUnit * 7
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 2
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: i18n("Runtime")
-                        opacity: 0.7
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: root.runtimeTextValue
-                        font.bold: true
-                        horizontalAlignment: Text.AlignRight
-                    }
-                }
-            }
-
-            QQC2.Frame {
-                Layout.fillWidth: true
-                Layout.minimumWidth: fullRoot.metricColumns === 4 ? Kirigami.Units.gridUnit * 5 : Kirigami.Units.gridUnit * 7
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 2
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: i18n("Load")
-                        opacity: 0.7
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: root.loadText
-                        font.bold: true
-                        horizontalAlignment: Text.AlignRight
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: metricFrame.modelData.value
+                            font.bold: true
+                            horizontalAlignment: Text.AlignRight
+                            elide: Text.ElideRight
+                        }
                     }
                 }
             }

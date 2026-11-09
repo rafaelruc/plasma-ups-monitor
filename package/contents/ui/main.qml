@@ -42,7 +42,12 @@ PlasmoidItem {
         batteryPercent: null,
         powerWatts: null,
         outputVoltage: null,
-        runtimeSeconds: null,
+        runtimeRaw: "",
+        batteryVoltage: null,
+        inputFrequency: null,
+        inputVoltage: null,
+        inputCurrentNominal: null,
+        temperature: null,
         loadPercent: null,
         alarm: "",
         lastPowerLoss: "",
@@ -97,7 +102,13 @@ PlasmoidItem {
     property string percentText: formatPercent(info.batteryPercent)
     property string powerText: formatNumber(info.powerWatts, "W", 0)
     property string voltageText: formatNumber(info.outputVoltage, "V", 0)
-    property string runtimeTextValue: formatRuntime(info.runtimeSeconds)
+    property string inputVoltageText: formatNumber(info.inputVoltage, "V", 0)
+    property string batteryVoltageText: formatNumber(info.batteryVoltage, "V", 1)
+    property string inputFrequencyText: formatNumber(info.inputFrequency, "Hz", 1)
+    property string inputCurrentNominalText: formatNumber(info.inputCurrentNominal, "A", 1)
+    property string temperatureText: formatNumber(info.temperature, "°C", 1)
+    // Runtime is shown exactly as reported by NUT (no parsing or formatting).
+    property string runtimeTextValue: info.runtimeRaw ? String(info.runtimeRaw) : i18n("N/A")
     property string loadText: formatNumber(info.loadPercent, "%", 0)
     property string lastPowerLossText: info.ok && info.lastPowerLoss ? info.lastPowerLoss : i18n("Never")
     property string compactSecondaryText: {
@@ -136,7 +147,7 @@ PlasmoidItem {
         if (hasAlarm) {
             return i18nc("@info:tooltip", "%1, %2, last power loss: %3", statusLine, info.alarm, lastPowerLossText)
         }
-        return i18nc("@info:tooltip", "%1, %2 remaining, last power loss: %3", statusLine, runtimeTextValue, lastPowerLossText)
+        return i18nc("@info:tooltip", "%1, runtime: %2, last power loss: %3", statusLine, runtimeTextValue, lastPowerLossText)
     }
 
     switchWidth: -1
@@ -184,25 +195,6 @@ PlasmoidItem {
         return Number(value).toFixed(decimals) + " " + unit
     }
 
-    function formatRuntime(seconds) {
-        const total = Number(seconds)
-        if (!Number.isFinite(total) || total <= 0) {
-            return i18n("N/A")
-        }
-
-        const hours = Math.floor(total / 3600)
-        const minutes = Math.floor((total % 3600) / 60)
-
-        if (hours > 0) {
-            if (minutes > 0) {
-                return i18nc("@item:intext runtime", "%1 h %2 min", hours, minutes)
-            }
-            return i18nc("@item:intext runtime", "%1 h", hours)
-        }
-
-        return i18nc("@item:intext runtime", "%1 min", Math.max(1, minutes))
-    }
-
     function extractPayload(data) {
         const namedKeys = ["stdout", "output", "data", "text"]
         for (let i = 0; i < namedKeys.length; ++i) {
@@ -246,7 +238,12 @@ PlasmoidItem {
                     batteryPercent: null,
                     powerWatts: null,
                     outputVoltage: null,
-                    runtimeSeconds: null,
+                    runtimeRaw: "",
+                    batteryVoltage: null,
+                    inputFrequency: null,
+                    inputVoltage: null,
+                    inputCurrentNominal: null,
+                    temperature: null,
                     loadPercent: null,
                     alarm: "",
                     lastPowerLoss: "",
@@ -272,7 +269,12 @@ PlasmoidItem {
                     batteryPercent: null,
                     powerWatts: null,
                     outputVoltage: null,
-                    runtimeSeconds: null,
+                    runtimeRaw: "",
+                    batteryVoltage: null,
+                    inputFrequency: null,
+                    inputVoltage: null,
+                    inputCurrentNominal: null,
+                    temperature: null,
                     loadPercent: null,
                     alarm: "",
                     lastPowerLoss: "",
