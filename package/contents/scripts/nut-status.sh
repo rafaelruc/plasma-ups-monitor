@@ -55,6 +55,7 @@ charge="$(get_value 'battery.charge')"
 watts="$(get_value 'ups.realpower')"
 voltage="$(get_value 'output.voltage')"
 runtime="$(get_value 'battery.runtime')"
+case "$runtime" in ""|*[!0-9.]*) runtime="" ;; esac
 load="$(get_value 'ups.load')"
 alarm="$(get_value 'ups.alarm')"
 last_onbatt=""
