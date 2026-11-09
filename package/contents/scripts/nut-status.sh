@@ -51,6 +51,9 @@ get_value() {
 
 status="$(get_value 'ups.status')"
 model="$(get_value 'ups.model')"
+if [ -z "$model" ]; then
+    model="$(get_value 'device.model')"
+fi
 charge="$(get_value 'battery.charge')"
 watts="$(get_value 'ups.realpower')"
 voltage="$(get_value 'output.voltage')"
